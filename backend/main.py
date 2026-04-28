@@ -9,7 +9,14 @@ from langchain_core.messages import HumanMessage, AIMessage
 from utils import extract_text_from_pdf
 
 # Create database tables
-models.Base.metadata.create_all(bind=engine)
+try:
+    print("Connecting to database...")
+    models.Base.metadata.create_all(bind=engine)
+    print("Database tables created successfully!")
+except Exception as e:
+    print(f"DATABASE ERROR: {e}")
+    # Don't exit here, let the app try to start anyway
+    pass
 
 app = FastAPI(title="Zenith AI Backend")
 
