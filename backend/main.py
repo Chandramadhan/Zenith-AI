@@ -41,6 +41,7 @@ async def chat(
     session_id: str = Form("default"),
     db: Session = Depends(get_db)
 ):
+    print(f"DEBUG: Received message: {message} for mode: {mode}")
     tasks = json.loads(tasks_json)
     
     # Save user message to DB
