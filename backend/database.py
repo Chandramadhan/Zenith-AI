@@ -13,25 +13,20 @@ if not raw_url or raw_url.strip() == "":
     print("DEBUG: DATABASE_URL is empty, using SQLite.")
     SQLALCHEMY_DATABASE_URL = "sqlite:///./zenith.db"
 else:
-    # Clean the URL (remove quotes, whitespace, and fix prefix)
+    # Clean the URL
     SQLALCHEMY_DATABASE_URL = raw_url.strip().strip("'").strip('"')
     if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
     
-    # Masked logging for debugging
-    try:
-        parts = SQLALCHEMY_DATABASE_URL.split("@")
-        if len(parts) > 1:
-            creds = parts[0].split("://")[1].split(":")
-            user = creds[0]
-            host = parts[1].split(":")[0]
-            print(f"DEBUG: Connecting to host: {host} with user: {user}")
-    except:
-        print("DEBUG: Could not parse URL for masked logging.")
+    # FORCE the username for Supavisor if using the pooler
+    if "pooler.supabase.com" in SQLALCHEMY_DATABASE_URL:
+        if "postgres.mfjcgcwdynavltfrbnoe" not in SQLALCHEMY_DATABASE_URL:
+            # Inject the project ID into the username if missing
+            SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres:", "postgres.mfjcgcwdynavltfrbnoe:", 1)
+            print("DEBUG: Fixed missing project ID in username for pooler.")
 
-# Final validation - if it doesn't start with a valid scheme, fallback
+# Final validation
 if not any(SQLALCHEMY_DATABASE_URL.startswith(s) for s in ["postgresql", "sqlite", "postgres"]):
-    print(f"DEBUG: Invalid scheme in DATABASE_URL, using SQLite. URL starts with: {SQLALCHEMY_DATABASE_URL[:10]}...")
     SQLALCHEMY_DATABASE_URL = "sqlite:///./zenith.db"
 
 # SQLite requires 'check_same_thread', PostgreSQL does not
