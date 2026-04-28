@@ -4,11 +4,13 @@ This guide will help you deploy the Zenith AI Ecosystem for **$0/month**.
 
 ## 1. Database (Supabase)
 1.  Go to [Supabase](https://supabase.com/) and create a free project.
-2.  Go to **Project Settings > Database** and copy the **URI Connection String**.
-3.  In your `backend/.env` file, update the `DATABASE_URL`:
+2.  Go to **Project Settings > Database** and scroll down to the **Connection Pooler** section.
+3.  Ensure the **Pooler** is enabled and set to **Mode: Transaction**.
+4.  Copy the **Connection String** and update it in your `backend/.env` (and Render Environment Variables):
     ```bash
-    # Use port 6543 for Render/IPv4 compatibility
-    DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-ID].supabase.co:6543/postgres?sslmode=require
+    # IMPORTANT: Use the .supabase.com (IPv4) hostname for Render, NOT .supabase.co
+    # Format: postgresql://postgres.[PROJECT-ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?sslmode=require
+    DATABASE_URL=postgresql://postgres.mfjcgcwdynavltfrbnoe:[YOUR-PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require
     ```
 
 ## 2. Backend (Render.com)
