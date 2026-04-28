@@ -10,7 +10,7 @@ This guide will help you deploy the Zenith AI Ecosystem for **$0/month**.
     ```bash
     # IMPORTANT: Use the .supabase.com (IPv4) hostname for Render, NOT .supabase.co
     # Format: postgresql://postgres.[PROJECT-ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?sslmode=require
-    DATABASE_URL=postgresql://postgres.mfjcgcwdynavltfrbnoe:[YOUR-PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require
+    DATABASE_URL=postgresql://postgres.mfjcgcwdynavltfrbnoe:Tvk2026thalapathy@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require
     ```
 
 ## 2. Backend (Render.com)
