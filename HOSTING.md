@@ -7,7 +7,8 @@ This guide will help you deploy the Zenith AI Ecosystem for **$0/month**.
 2.  Go to **Project Settings > Database** and copy the **URI Connection String**.
 3.  In your `backend/.env` file, update the `DATABASE_URL`:
     ```bash
-    DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-ID].supabase.co:5432/postgres
+    # Use port 6543 for Render/IPv4 compatibility
+    DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-ID].supabase.co:6543/postgres?sslmode=require
     ```
 
 ## 2. Backend (Render.com)
