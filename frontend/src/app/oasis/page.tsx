@@ -15,12 +15,13 @@ export default function InterviewOasis() {
   const [selectedVoice, setSelectedVoice] = useState<string>("");
   
   const recognitionRef = useRef<any>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
   useEffect(() => {
     // Load History
     const fetchHistory = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/history/oasis_session');
+        const res = await axios.get(`${apiUrl}/history/oasis_session`);
         const history = res.data.map((h: any) => ({
           role: h.role === 'human' ? 'user' : 'bot',
           content: h.content
@@ -60,7 +61,7 @@ export default function InterviewOasis() {
 
     window.speechSynthesis.onvoiceschanged = loadVoices;
     loadVoices();
-  }, []);
+  }, [apiUrl]);
 
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -69,7 +70,7 @@ export default function InterviewOasis() {
     formData.append('file', e.target.files[0]);
 
     try {
-      const res = await axios.post('http://127.0.0.1:8000/upload-resume', formData);
+      const res = await axios.post(`${apiUrl}/upload-resume`, formData);
       setResumeText(res.data.text);
       const welcomeMsg = "Resume received! I've analyzed your background. Whenever you're ready, say 'Start' or type a message to begin the interview.";
       setMessages([{ role: 'bot', content: welcomeMsg }]);
@@ -107,7 +108,7 @@ export default function InterviewOasis() {
     formData.append('session_id', 'oasis_session');
 
     try {
-      const res = await axios.post('http://127.0.0.1:8000/chat', formData);
+      const res = await axios.post(`${apiUrl}/chat`, formData);
       setMessages([...newMessages, { role: 'bot', content: res.data.response }]);
       speak(res.data.response);
     } catch (err) {

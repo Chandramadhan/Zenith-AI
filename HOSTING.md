@@ -14,11 +14,12 @@ This guide will help you deploy the Zenith AI Ecosystem for **$0/month**.
 1.  Push your code to **GitHub**.
 2.  Go to [Render](https://render.com/) and create a new **Web Service**.
 3.  Connect your GitHub repository.
-4.  Set the following:
+4.  **CRITICAL:** Scroll down to **Root Directory** and set it to `backend`.
+5.  Set the following:
     *   **Environment:** `Python`
     *   **Build Command:** `pip install uv && uv sync`
     *   **Start Command:** `uv run uvicorn main:app --host 0.0.0.0 --port $PORT`
-5.  Add **Environment Variables**:
+6.  Add **Environment Variables**:
     *   `GROQ_API_KEY`: (Your key)
     *   `DATABASE_URL`: (Your Supabase URL)
 

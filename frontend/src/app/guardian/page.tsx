@@ -21,6 +21,8 @@ export default function GoalGuardian() {
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDeadline, setNewTaskDeadline] = useState("");
   const [isMounted, setIsMounted] = useState(false);
+  
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
   // Load tasks and HISTORY on mount
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function GoalGuardian() {
     // Load Chat History from Backend
     const fetchHistory = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/history/default');
+        const res = await axios.get(`${apiUrl}/history/default`);
         const history = res.data.map((h: any) => ({
           role: h.role === 'human' ? 'user' : 'bot',
           content: h.content
@@ -52,7 +54,7 @@ export default function GoalGuardian() {
       }
     };
     fetchHistory();
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     if (isMounted) {
@@ -75,7 +77,7 @@ export default function GoalGuardian() {
       formData.append('tasks_json', JSON.stringify(tasks));
       formData.append('session_id', 'default');
 
-      const res = await axios.post('http://127.0.0.1:8000/chat', formData);
+      const res = await axios.post(`${apiUrl}/chat`, formData);
       setMessages([...newMessages, { role: 'bot', content: res.data.response }]);
     } catch (err) {
       console.error(err);
