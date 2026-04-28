@@ -7,13 +7,19 @@ from sqlalchemy.orm import sessionmaker
 load_dotenv()
 
 # Use Environment Variable or fallback to local SQLite
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./zenith.db")
+raw_url = os.getenv("DATABASE_URL")
 
-# Clean the URL (remove quotes, whitespace, and fix prefix)
-if SQLALCHEMY_DATABASE_URL:
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.strip().strip("'").strip('"')
+if not raw_url or raw_url.strip() == "":
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./zenith.db"
+else:
+    # Clean the URL (remove quotes, whitespace, and fix prefix)
+    SQLALCHEMY_DATABASE_URL = raw_url.strip().strip("'").strip('"')
     if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Final validation - if it doesn't start with a valid scheme, fallback
+if not any(SQLALCHEMY_DATABASE_URL.startswith(s) for s in ["postgresql", "sqlite", "postgres"]):
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./zenith.db"
 
 # SQLite requires 'check_same_thread', PostgreSQL does not
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
