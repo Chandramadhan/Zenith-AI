@@ -41,50 +41,59 @@ async def chat(
     session_id: str = Form("default"),
     db: Session = Depends(get_db)
 ):
-    print(f"DEBUG: Received message: {message} for mode: {mode}")
-    tasks = json.loads(tasks_json)
-    
-    # Save user message to DB
-    user_msg = models.ChatHistory(session_id=session_id, role="human", content=message)
-    db.add(user_msg)
-    db.commit()
+    try:
+        print(f"DEBUG: Processing message for session: {session_id}")
+        tasks = json.loads(tasks_json)
+        
+        # Save user message to DB
+        user_msg = models.ChatHistory(session_id=session_id, role="human", content=message)
+        db.add(user_msg)
+        db.commit()
 
-    # Get history from DB for the agent
-    history_records = db.query(models.ChatHistory).filter(models.ChatHistory.session_id == session_id).all()
-    history = []
-    for rec in history_records:
-        if rec.role == "human":
-            history.append(HumanMessage(content=rec.content))
-        else:
-            history.append(AIMessage(content=rec.content))
+        # Get history from DB for the agent
+        history_records = db.query(models.ChatHistory).filter(models.ChatHistory.session_id == session_id).all()
+        history = []
+        for rec in history_records:
+            if rec.role == "human":
+                history.append(HumanMessage(content=rec.content))
+            else:
+                history.append(AIMessage(content=rec.content))
 
-    # Run the agent
-    initial_state = {
-        "mode": mode,
-        "tasks": tasks,
-        "resume_text": resume_text,
-        "messages": history,
-        "current_negotiation": None
-    }
-    
-    result = agent_app.invoke(initial_state)
-    last_msg = result["messages"][-1]
-    
-    # Save AI response to DB
-    ai_msg = models.ChatHistory(session_id=session_id, role="ai", content=last_msg.content)
-    db.add(ai_msg)
-    db.commit()
-    
-    return {"response": last_msg.content, "state": {
-        "mode": result["mode"],
-        "tasks": result["tasks"],
-        "current_negotiation": result["current_negotiation"]
-    }}
+        # Run the agent
+        initial_state = {
+            "mode": mode,
+            "tasks": tasks,
+            "resume_text": resume_text,
+            "messages": history,
+            "current_negotiation": None
+        }
+        
+        print("DEBUG: Invoking agent...")
+        result = agent_app.invoke(initial_state)
+        last_msg = result["messages"][-1]
+        
+        # Save AI response to DB
+        ai_msg = models.ChatHistory(session_id=session_id, role="ai", content=last_msg.content)
+        db.add(ai_msg)
+        db.commit()
+        
+        return {"response": last_msg.content, "state": {
+            "mode": result["mode"],
+            "tasks": result["tasks"],
+            "current_negotiation": result["current_negotiation"]
+        }}
+    except Exception as e:
+        print(f"CHAT ERROR: {str(e)}")
+        return {"response": f"Sorry, I encountered an error: {str(e)}", "state": None}
 
 @app.get("/history/{session_id}")
 async def get_history(session_id: str, db: Session = Depends(get_db)):
-    history = db.query(models.ChatHistory).filter(models.ChatHistory.session_id == session_id).all()
-    return history
+    try:
+        history = db.query(models.ChatHistory).filter(models.ChatHistory.session_id == session_id).all()
+        return history
+    except Exception as e:
+        print(f"HISTORY ERROR: {str(e)}")
+        return []
 
 @app.post("/upload-resume")
 async def upload_resume(file: UploadFile = File(...)):
